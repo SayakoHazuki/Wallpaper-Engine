@@ -1,13 +1,17 @@
 import pyautogui
 import tkinter
+import win32gui
+import win32con
+import ctypes
+from ctypes import c_bool, c_int, windll
+from ctypes.wintypes import HWND, UINT
 from PIL import ImageTk, Image
 
 W = 1920
 H = 1080
 
-tk = tkinter.Tk()
+tk = tkinter.Tk(className="Wallpaper")
 tk.geometry(f"{W}x{H}")
-tk.attributes('-fullscreen', True)
 
 canvasX = int(W*1.15)
 canvasY = int(H*1.15)
@@ -28,8 +32,8 @@ canvas.create_image(canvasX/2, canvasY/2, image=img, anchor=tkinter.CENTER)
 
 def updateCanvasPos():
     global canvasXOffset, canvasYOffset
-    originalX = canvasXOffset 
-    originalY = canvasYOffset 
+    originalX = canvasXOffset
+    originalY = canvasYOffset
     cursorPos = pyautogui.position()
     canvasXOffset = int(0 - (cursorPos.x * 0.15))
     canvasYOffset = int(0 - (cursorPos.y * 0.15))
@@ -43,5 +47,12 @@ def updateCanvasPos():
     tk.after(1, updateCanvasPos)
 
 
+hwnd = tk.winfo_id()
+tk.update()
+
+win32gui.SendMessageTimeout(hwnd, 0x052C, 0, 0, win32con.SMTO_NORMAL, 1000)
+
+
 tk.after(20, updateCanvasPos)
+tk.overrideredirect(True)
 tk.mainloop()
