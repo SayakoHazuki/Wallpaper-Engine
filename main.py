@@ -50,9 +50,31 @@ def updateCanvasPos():
 hwnd = tk.winfo_id()
 tk.update()
 
-win32gui.SendMessageTimeout(hwnd, 0x052C, 0, 0, win32con.SMTO_NORMAL, 1000)
-
-
 tk.after(20, updateCanvasPos)
 tk.overrideredirect(True)
+
+def getHwnd():
+    progman = win32gui.FindWindow("Progman", "Program Manager")
+    a = win32gui.SendMessageTimeout(progman, 0x052C, 0, 0, win32con.SMTO_NORMAL, 0x03E8)
+    print("a:", a)
+    hwnd_workW = None
+    while 1:
+        hwnd_workW = win32gui.FindWindowEx(None, hwnd_workW, "WorkerW", None)
+        if not hwnd_workW:
+            continue
+        hView = win32gui.FindWindowEx(hwnd_workW, None, "SHELLDLL_DefView", None)
+        if not hView:
+            continue
+        h = win32gui.FindWindowEx(None, hwnd_workW, "WorkerW", None)
+        while h:
+            win32gui.SendMessage(h, 0x0010, 0, 0)
+            h = win32gui.FindWindowEx(None, hwnd_workW, "WorkerW", None)
+        break 
+    return h
+
+WorkerW_hwnd = getHwnd()
+print(hwnd, WorkerW_hwnd)
+win32gui.SetParent(hwnd, WorkerW_hwnd)
+
 tk.mainloop()
+
